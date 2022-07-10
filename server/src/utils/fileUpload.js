@@ -26,7 +26,7 @@ const multerWithStorage = multer({ storage: storageContestFiles });
 const initialName = [uploadAvatars,uploadContestFiles,updateContestFile,uploadLogoFiles];
 
 const workWithFiles = (req, res, next) => {
-  initialName(req, res, (err) => {
+  initialName.map(req, res, (err) => {
     if (err instanceof multer.MulterError) {
       next(new ServerError());
     } else if (err) {
