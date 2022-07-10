@@ -15,15 +15,7 @@ module.exports.login = async (req, res, next) => {
     await userQueries.passwordCompare(req.body.password, foundUser.password);
     const accessToken = jwt.sign(
       {
-        firstName: foundUser.firstName,
-        userId: foundUser.id,
-        role: foundUser.role,
-        lastName: foundUser.lastName,
-        avatar: foundUser.avatar,
-        displayName: foundUser.displayName,
-        balance: foundUser.balance,
-        email: foundUser.email,
-        rating: foundUser.rating,
+        tokensConsts,
       },
       CONSTANTS.JWT_SECRET,
       { expiresIn: CONSTANTS.ACCESS_TOKEN_TIME }
@@ -41,15 +33,7 @@ module.exports.registration = async (req, res, next) => {
     );
     const accessToken = jwt.sign(
       {
-        firstName: newUser.firstName,
-        userId: newUser.id,
-        role: newUser.role,
-        lastName: newUser.lastName,
-        avatar: newUser.avatar,
-        displayName: newUser.displayName,
-        balance: newUser.balance,
-        email: newUser.email,
-        rating: newUser.rating,
+        tokensConsts,
       },
       CONSTANTS.JWT_SECRET,
       { expiresIn: CONSTANTS.ACCESS_TOKEN_TIME }
