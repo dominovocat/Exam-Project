@@ -6,16 +6,11 @@ const checkToken = require("../middlewares/checkToken");
 const validators = require("../middlewares/validators");
 const chatController = require("../controllers/chatController");
 const upload = require("../utils/fileUpload");
+const authRouter = require("./authRouter");
+
 const router = express.Router();
 
-router.post(
-  "/registration",
-  validators.validateRegistrationData,
-  hashPass,
-  userController.registration
-);
-
-router.post("/login", validators.validateLogin, userController.login);
+router.use("/auth", authRouter);
 
 router.post(
   "/dataForContest",
@@ -89,6 +84,9 @@ router.post(
   basicMiddlewares.onlyForCustomer,
   userController.changeMark
 );
+
+//user router
+router.post("/getUser", checkToken.checkAuth);
 
 router.post(
   "/updateUser",
