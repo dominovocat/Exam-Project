@@ -30,8 +30,8 @@ module.exports.userCreation = async (data) => {
   }
 };
 
-module.exports.passwordCompare = async (pass1, pass2) => {
-  const passwordCompare = await bcrypt.compare(pass1, pass2);
+module.exports.passwordCompare = async (pass, pass_hash) => {
+  const passwordCompare = await bcrypt.compare(pass, pass_hash);
   if (!passwordCompare) {
     throw new NotFound('Invalid email or password');
   }

@@ -13,18 +13,14 @@ const {
   CONTEST_STATUS_ACTIVE,
 } = require("../constants");
 const { prepareUser } = require("../utils/user.utils");
+const { createAccessToken } = require("../services/jwtService");
 
 module.exports.login = async (req, res, next) => {
   try {
     const foundUser = await userQueries.findUser({ email: req.body.email });
     await userQueries.passwordCompare(req.body.password, foundUser.password);
-    const accessToken = jwt.sign(
-      {
-        tokensConsts,
-      },
-      CONSTANTS.JWT_SECRET,
-      { expiresIn: CONSTANTS.ACCESS_TOKEN_TIME }
-    );
+    const accessToken = createAccessToken(foundUser);
+
     await userQueries.updateUser({ accessToken }, foundUser.id);
     res.send({ user: prepareUser(foundUser), token: accessToken });
   } catch (err) {
@@ -35,15 +31,10 @@ module.exports.registration = async (req, res, next) => {
   try {
     const newUser = await userQueries.userCreation(req.body);
 
-    const accessToken = jwt.sign(
-      {
-        tokensConsts,
-      },
-      CONSTANTS.JWT_SECRET,
-      { expiresIn: CONSTANTS.ACCESS_TOKEN_TIME }
-    );
+    const accessToken = createAccessToken(foundUser);
+
     await userQueries.updateUser({ accessToken }, newUser.id);
-    res.send({ user:prepareUser(newUser),token: accessToken });
+    res.send({ user: prepareUser(newUser), token: accessToken });
   } catch (err) {
     if (err.name === "SequelizeUniqueConstraintError") {
       next(new NotUniqueEmail());
@@ -159,17 +150,7 @@ module.exports.updateUser = async (req, res, next) => {
       req.body,
       req.tokenData.userId
     );
-    res.send({
-      id:this.updateUser.id,
-      firstName: updatedUser.firstName,
-      lastName: updatedUser.lastName,
-      displayName: updatedUser.displayName,
-      avatar: updatedUser.avatar,
-      email: updatedUser.email,
-      balance: updatedUser.balance,
-      role: updatedUser.role,
-      id: updatedUser.id,
-    });
+    res.send(prepareUser(updatedUser));
   } catch (err) {
     next(err);
   }

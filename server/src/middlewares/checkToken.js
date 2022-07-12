@@ -1,7 +1,6 @@
-const jwt = require('jsonwebtoken');
-const CONSTANTS = require('../constants');
 const TokenError = require('../errors/TokenError');
 const userQueries =require('../controllers/queries/userQueries');
+const {verifyAccessToken}=require('../services/jwtService');
 
 module.exports.checkAuth = async (req, res, next) => {
   const accessToken = req.headers.authorization;
@@ -9,7 +8,7 @@ module.exports.checkAuth = async (req, res, next) => {
     return next(new TokenError('need token'));
   }
   try {
-    const tokenData = jwt.verify(accessToken, CONSTANTS.JWT_SECRET);
+    const tokenData = verifyAccessToken(accessToken);
     const foundUser = await userQueries.findUser({ id: tokenData.userId });
     res.send({
       firstName: foundUser.firstName,
@@ -32,7 +31,7 @@ module.exports.checkToken = async (req, res, next) => {
     return next(new TokenError('need token'));
   }
   try {
-    req.tokenData = jwt.verify(accessToken, CONSTANTS.JWT_SECRET);
+    req.tokenData = verifyAccessToken(accessToken);
     next();
   } catch (err) {
     next(new TokenError());
