@@ -1,7 +1,8 @@
+const { OFFER_STATUS_PENDING } = require("../constants");
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Offers', {
+    return queryInterface.createTable("Offers", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -12,16 +13,16 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Users',
-          key: 'id',
+          model: "Users",
+          key: "id",
         },
       },
       contestId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'Contests',
-          key: 'id',
+          model: "Contests",
+          key: "id",
         },
       },
       text: {
@@ -39,11 +40,11 @@ module.exports = {
       status: {
         type: Sequelize.STRING,
         allowNull: true,
-        defaultValue: 'pending',
+        defaultValue: OFFER_STATUS_PENDING,
       },
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Offers');
+    return queryInterface.dropTable("Offers");
   },
 };

@@ -1,3 +1,6 @@
+const bcrypt = require("bcrypt");
+const { CUSTOMER, CREATOR } = require("../constants");
+
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     "Users",
@@ -35,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: "anon.png",
       },
       role: {
-        type: DataTypes.ENUM("customer", "creator"),
+        type: DataTypes.ENUM(CUSTOMER, CREATOR),
         allowNull: false,
       },
       balance: {
@@ -60,6 +63,16 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: false,
     }
   );
+
+  User.beforeCreate(async (user, options) => {
+    const hashedPassword = await bcrypt.hash(user.password);
+    user.password = hashedPassword;
+  });
+
+  // User.beforeUpdate(async (user,options)=>{
+  //   const hashedPassword = await hashPassword(user.password);
+  //   user.password = hashedPassword;
+  // });
 
   User.associate = function (models) {
     User.hasMany(models.Order, { foreignKey: "user_id", targetKey: "id" });

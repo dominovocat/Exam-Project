@@ -8,6 +8,10 @@ const controller = require("../socketInit");
 const userQueries = require("./queries/userQueries");
 const bankQueries = require("./queries/bankQueries");
 const ratingQueries = require("./queries/ratingQueries");
+const {
+  CONTEST_STATUS_PENDING,
+  CONTEST_STATUS_ACTIVE,
+} = require("../constants");
 
 module.exports.login = async (req, res, next) => {
   try {
@@ -49,21 +53,6 @@ module.exports.registration = async (req, res, next) => {
   }
 };
 
-function getQuery(offerId, userId, mark, isFirst, transaction) {
-  const getCreateQuery = () =>
-    ratingQueries.createRating(
-      {
-        offerId,
-        mark,
-        userId,
-      },
-      transaction
-    );
-  const getUpdateQuery = () =>
-    ratingQueries.updateRating({ mark }, { offerId, userId }, transaction);
-  return isFirst ? getCreateQuery : getUpdateQuery;
-}
-
 module.exports.changeMark = async (req, res, next) => {
   let sum = 0;
   let avg = 0;
@@ -75,7 +64,13 @@ module.exports.changeMark = async (req, res, next) => {
       isolationLevel:
         bd.Sequelize.Transaction.ISOLATION_LEVELS.READ_UNCOMMITTED,
     });
-    const query = getQuery(offerId, userId, mark, isFirst, transaction);
+    const query = ratingQueries.getMarkQuery(
+      offerId,
+      userId,
+      mark,
+      isFirst,
+      transaction
+    );
     await query();
     const offersArray = await bd.Ratings.findAll({
       include: [
@@ -138,7 +133,7 @@ module.exports.payment = async (req, res, next) => {
           ? Math.ceil(req.body.price / req.body.contests.length)
           : Math.floor(req.body.price / req.body.contests.length);
       contest = Object.assign(contest, {
-        status: index === 0 ? "active" : "pending",
+        status: index === 0 ? CONTEST_STATUS_ACTIVE : CONTEST_STATUS_PENDING,
         userId: req.tokenData.userId,
         priority: index + 1,
         orderId,
