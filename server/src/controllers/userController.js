@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken");
+const createHttpError = require("http-errors");
 const CONSTANTS = require("../constants");
 const bd = require("../models");
 const NotUniqueEmail = require("../errors/NotUniqueEmail");
@@ -13,16 +13,16 @@ const {
   CONTEST_STATUS_ACTIVE,
 } = require("../constants");
 const { prepareUser } = require("../utils/user.utils");
-const { createAccessToken } = require("../services/jwtService");
+const { verifyRefreshToken, createSession } = require("../services/jwtService");
 
 module.exports.login = async (req, res, next) => {
   try {
     const foundUser = await userQueries.findUser({ email: req.body.email });
     await userQueries.passwordCompare(req.body.password, foundUser.password);
-    const accessToken = createAccessToken(foundUser);
 
-    await userQueries.updateUser({ accessToken }, foundUser.id);
-    res.send({ user: prepareUser(foundUser), token: accessToken });
+    const tokenPair = await createSession(foundUser);
+
+    res.send({ user: prepareUser(foundUser), tokenPair });
   } catch (err) {
     next(err);
   }
@@ -31,16 +31,36 @@ module.exports.registration = async (req, res, next) => {
   try {
     const newUser = await userQueries.userCreation(req.body);
 
-    const accessToken = createAccessToken(foundUser);
+    const tokenPair = await createSession(newUser);
 
-    await userQueries.updateUser({ accessToken }, newUser.id);
-    res.send({ user: prepareUser(newUser), token: accessToken });
+    res.send({ user: prepareUser(newUser), tokenPair });
   } catch (err) {
     if (err.name === "SequelizeUniqueConstraintError") {
       next(new NotUniqueEmail());
     } else {
       next(err);
     }
+  }
+};
+
+module.exports.refreshSession = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+
+    const foundToken = await RefreshToken.findOne({
+      where: { value: refreshToken },
+    });
+
+    if (!foundToken) {
+      return next(createHttpError(404, "Refresh token not found"));
+    }
+
+    const user = await userQueries.findUser({ id: req.tokenData.userId });
+    const tokenPair = await createSession(user);
+
+    res.status(200).send({ tokenPair, user: prepareUser(user) });
+  } catch (error) {
+    next(error);
   }
 };
 
