@@ -1,4 +1,4 @@
-import ACTION from './actionTypes';
+import ACTION from "./actionTypes";
 
 export const authActionLogin = (data, history) => ({
   type: ACTION.AUTH_ACTION_LOGIN,
@@ -10,6 +10,10 @@ export const authActionRegister = (data, history) => ({
   type: ACTION.AUTH_ACTION_REGISTER,
   data,
   history,
+});
+export const authActionRefresh = (data) => ({
+  type: ACTION.AUTH_ACTION_REFRESH,
+  data,
 });
 
 export const payRequest = (data, history) => ({
@@ -48,7 +52,9 @@ export const getDataForContest = (data) => ({
   data,
 });
 
-export const clearDataForContest = () => ({ type: ACTION.CLEAR_DATA_FOR_SELECTS });
+export const clearDataForContest = () => ({
+  type: ACTION.CLEAR_DATA_FOR_SELECTS,
+});
 
 export const getContestsForCreative = (data) => ({
   type: ACTION.GET_CONTESTS_FOR_CREATIVE,
@@ -145,7 +151,6 @@ export const goToExpandedDialog = (data) => ({
 });
 
 export const getDialogMessages = (data) => ({
-
   type: ACTION.GET_DIALOG_MESSAGES_ASYNC,
   data,
 });

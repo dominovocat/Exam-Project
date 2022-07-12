@@ -47,7 +47,7 @@ module.exports.refreshSession = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
 
-    const foundToken = await RefreshToken.findOne({
+    const foundToken = await db.RefreshToken.findOne({
       where: { value: refreshToken },
     });
 

@@ -71,20 +71,20 @@ module.exports = (sequelize, DataTypes) => {
 
   User.beforeUpdate(async (user, options) => {
     if (user.password) {
-      const hashedPassword = await bcrypt.hash(user.password,SALT_ROUNDS);
+      const hashedPassword = await bcrypt.hash(user.password, SALT_ROUNDS);
       user.password = hashedPassword;
     }
   });
 
   User.associate = function (models) {
-    User.hasMany(models.Order, { foreignKey: "user_id", targetKey: "id" });
+   //User.hasMany(models.Order, { foreignKey: "user_id", targetKey: "id" });
 
-    User.hasMany(models.Offer, { foreignKey: "user_id", targetKey: "id" });
+    User.hasMany(models.Offer, { foreignKey: "userId", targetKey: "id" });
 
-    // User.hasMany(models.RefreshToken, {
-    //   foreignKey: "user_id",
-    //   targetKey: "id",
-    // });
+    User.hasMany(models.RefreshToken, {
+      foreignKey: "userId",
+      targetKey: "id",
+    });
   };
 
   return User;

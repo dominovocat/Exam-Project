@@ -7,6 +7,8 @@ const {
   REFRESH_TOKEN_TIME,
   MAX_SESSIONS_COUNT,
 } = require("../constants");
+const db = require("../models");
+const createHttpError = require("http-errors");
 
 const createAccessToken = (user) => {
   return jwt.sign(createJWTBody(user), ACCESS_SECRET, {
@@ -45,19 +47,32 @@ module.exports.createSession = async (user) => {
 
   const refresh = tokenPair.refresh;
 
-  const sessions = await RefreshToken.findAll({
+  const sessions = await db.RefreshToken.findAll({
     where: { userId: user.id },
     order: [["updatedAt", "ASC"]],
   });
   if (sessions.length >= MAX_SESSIONS_COUNT) {
     const oldestToken = sessions[0];
-    await RefreshToken.update(
+    await db.RefreshToken.update(
       { value: refresh },
       { where: { id: oldestToken.id } }
     );
   } else {
-    await RefreshToken.create({ value: refresh });
+    await db.RefreshToken.create({ value: refresh });
   }
 
   return tokenPair;
+};
+
+module.exports.refreshSession = async (refreshToken, tikenData) => {
+  const foundToken = await db.RefreshToken.findOne({
+    where: { value: refreshToken },
+  });
+  if (!foundToken) {
+    throw createHttpError(419, "Refresh token not found");
+  }
+
+  await db.RefreshToken.destroy({ where: { id: foundToken.id } });
+  const user = await userQueries.findUser({ id: req.tokenData.userId });
+  const tokenPair = await createSession(user);
 };
