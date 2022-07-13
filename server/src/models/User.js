@@ -88,8 +88,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  User.beforeCreate(async (user, options) => {
-    const hashedPassword = await bcrypt.hash(user.password);
+  User.beforeCreate (async (user, options) => {
+    const hashedPassword = await bcrypt.hash(user.password,SALT_ROUNDS);
     user.password = hashedPassword;
   });
 
