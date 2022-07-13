@@ -1,8 +1,6 @@
 const moment = require("moment");
 const { v4: uuid } = require("uuid");
-
 const bd = require("../models");
-const NotUniqueEmail = require("../errors/NotUniqueEmail");
 const controller = require("../socketInit");
 const userQueries = require("./queries/userQueries");
 const bankQueries = require("./queries/bankQueries");
@@ -78,10 +76,10 @@ module.exports.changeMark = async (req, res, next) => {
       transaction
     );
     await query();
-    const offersArray = await bd.Ratings.findAll({
+    const offersArray = await bd.Rating.findAll({
       include: [
         {
-          model: bd.Offers,
+          model: bd.Offer,
           required: true,
           where: { userId: creatorId },
         },
@@ -147,7 +145,7 @@ module.exports.payment = async (req, res, next) => {
         prize,
       });
     });
-    await bd.Contests.bulkCreate(req.body.contests, transaction);
+    await bd.Contest.bulkCreate(req.body.contests, transaction);
     transaction.commit();
     res.send();
   } catch (err) {

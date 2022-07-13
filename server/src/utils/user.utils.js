@@ -1,3 +1,4 @@
+
 const lodash = require("lodash");
 
 module.exports.prepareUser = (user) => {
