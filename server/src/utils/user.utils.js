@@ -1,10 +1,11 @@
+
 const lodash = require("lodash");
 
-module.export.prepareUser = (user) => {
+module.exports.prepareUser = (user) => {
   return lodash.omit(user, ["password", "accessToken"]);
 };
 
-module.export.createJWTBody = (user) => {
+module.exports.createJWTBody = (user) => {
   return {
     ...lodash.omit(user, ["password", "accessToken", "id"]),
     userId: user.id,
