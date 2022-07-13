@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const db = require("../../models");
 
 module.exports.updateUser = async (data, userId, transaction) => {
-  const [updatedCount, [updatedUser]] = await bd.Users.update(data, {
+  const [updatedCount, [updatedUser]] = await bd.User.update(data, {
     where: { id: userId },
     returning: true,
     transaction,
@@ -16,7 +16,7 @@ module.exports.updateUser = async (data, userId, transaction) => {
   return updatedUser.dataValues;
 };
 module.exports.findUser = async (predicate, transaction) => {
-  const result = await bd.Users.findOne({ where: predicate, transaction });
+  const result = await bd.User.findOne({ where: predicate, transaction });
   if (!result) {
     throw new NotFound("user with this data didn`t exist");
   } else {
@@ -24,7 +24,7 @@ module.exports.findUser = async (predicate, transaction) => {
   }
 };
 module.exports.userCreation = async (data) => {
-  const newUser = await bd.Users.create(data);
+  const newUser = await bd.User.create(data);
   if (!newUser) {
     throw new ServerError("server error on user creation");
   }
@@ -40,7 +40,7 @@ const passwordCompare = async (pass, pass_hash) => {
 module.exports.passwordCompare = passwordCompare;
 
 module.exports.checkUserLogin = async (email, password) => {
-  const foundUser = (await db.Users.findOne({ email })).get({ plain: true });
+  const foundUser = (await db.User.findOne({ email })).get({ plain: true });
 
   await passwordCompare(password, foundUser?.password || "");
 

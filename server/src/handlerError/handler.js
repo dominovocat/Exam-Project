@@ -14,7 +14,10 @@ function multerErrorHandler(err) {
 function sequelizeErrorHandler(err) {
   if (err instanceof BaseError) {
     if (err instanceof UniqueConstraintError) {
-      if (err.message.includes("Users_email_key")) {
+      if (
+        typeof err.message === "string" &&
+        err.message.includes("Users_email_key")
+      ) {
         err.code = 409;
         err.message = "User with this email already exists";
       }
@@ -26,8 +29,9 @@ function sequelizeErrorHandler(err) {
   }
 
   if (
-    err.message.includes("Banks_balance_ck") ||
-    err.message.includes("Users_balance_ck")
+    typeof err.message === "string" &&
+    (err.message.includes("Banks_balance_ck") ||
+      err.message.includes("Users_balance_ck"))
   ) {
     err.message = "Not Enough money";
     err.code = 406;
