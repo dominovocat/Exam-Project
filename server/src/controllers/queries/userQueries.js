@@ -40,7 +40,7 @@ const passwordCompare = async (pass, pass_hash) => {
 module.exports.passwordCompare = passwordCompare;
 
 module.exports.checkUserLogin = async (email, password) => {
-  const foundUser = (await db.Users.findOne({ email })).get({ plain: true });
+  const foundUser = (await db.Users.findOne({ where:{email} })).get({ plain: true });
 
   await passwordCompare(password, foundUser?.password || "");
 
