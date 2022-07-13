@@ -1,24 +1,23 @@
-const createHttpError = require("http-errors");
-const CONSTANTS = require("../constants");
-const bd = require("../models");
-const NotUniqueEmail = require("../errors/NotUniqueEmail");
 const moment = require("moment");
 const { v4: uuid } = require("uuid");
+
+const bd = require("../models");
+const NotUniqueEmail = require("../errors/NotUniqueEmail");
 const controller = require("../socketInit");
 const userQueries = require("./queries/userQueries");
 const bankQueries = require("./queries/bankQueries");
 const ratingQueries = require("./queries/ratingQueries");
-const {
-  CONTEST_STATUS_PENDING,
-  CONTEST_STATUS_ACTIVE,
-} = require("../constants");
 const { prepareUser } = require("../utils/user.utils");
-const { verifyRefreshToken, createSession } = require("../services/jwtService");
+const { createSession, refreshSession } = require("../services/jwtService");
+const CONSTANTS = require("../constants");
+const { CONTEST_STATUS_PENDING, CONTEST_STATUS_ACTIVE } = CONSTANTS;
 
 module.exports.login = async (req, res, next) => {
   try {
-    const foundUser = await userQueries.findUser({ email: req.body.email });
-    await userQueries.passwordCompare(req.body.password, foundUser.password);
+    const foundUser = await userQueries.checkUserLogin(
+      req.body.email,
+      req.body.password
+    );
 
     const tokenPair = await createSession(foundUser);
 
@@ -35,11 +34,7 @@ module.exports.registration = async (req, res, next) => {
 
     res.send({ user: prepareUser(newUser), tokenPair });
   } catch (err) {
-    if (err.name === "SequelizeUniqueConstraintError") {
-      next(new NotUniqueEmail());
-    } else {
-      next(err);
-    }
+    next(err);
   }
 };
 

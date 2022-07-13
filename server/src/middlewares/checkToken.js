@@ -9,7 +9,7 @@ const createHttpError = require("http-errors");
 module.exports.checkAuth = async (req, res, next) => {
   const accessToken = req.headers.authorization;
   if (!accessToken) {
-    return next(new TokenError("need token"));
+    return next(createHttpError(401, "need token"));
   }
   try {
     const tokenData = verifyAccessToken(accessToken);
@@ -25,21 +25,21 @@ module.exports.checkAuth = async (req, res, next) => {
       email: foundUser.email,
     });
   } catch (err) {
-    next(new TokenError());
+    next(createHttpError(401, "token error"));
   }
 };
 
 module.exports.checkToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
-    return next(new TokenError("need token"));
+    return next(createHttpError(401, "need token"));
   }
   try {
     const [, token] = authHeader.split(" ");
     req.tokenData = verifyAccessToken(token);
     next();
   } catch (err) {
-    next(new TokenError());
+    next(createHttpError(401, "token error"));
   }
 };
 module.exports.checkRefreshToken = async (req, res, next) => {
